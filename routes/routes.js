@@ -25,6 +25,7 @@ const requestSchema = Joi.object({
 
 const userStorySchema = Joi.object({
     role: Joi.string().required(),
+    verb: Joi.string().required(),
     action: Joi.string().required()
 })
 
@@ -74,11 +75,12 @@ router.post("/api/stories", async (req, res) => {
         if(!validUserStory) return res.status(BAD_REQUEST).send(MISSING_STORY_FIELDS);
 
         const role = sanitizeText(story.role);
+        const verb = sanitizeText(story.verb);
         const action = sanitizeText(story.action);
 
-        if(!role || !action) return res.status(BAD_REQUEST).send(MISSING_STORY_FIELDS);
+        if(!role || !action || !verb) return res.status(BAD_REQUEST).send(MISSING_STORY_FIELDS);
 
-        userStories.push(new UserStory({ role: role, action: action }));
+        userStories.push(new UserStory({ role: role, verb: verb, action: action }));
     }
 
     const request = new Request({

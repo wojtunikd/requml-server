@@ -3,6 +3,7 @@ const { Schema } = mongoose;
 
 const userStorySchema = new Schema({
     role: { type: String, required: true },
+    verb: { type: String, required: true },
     action: { type: String, required: true }
 })
 
