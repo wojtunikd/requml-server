@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const Joi = require("joi");
 
 const { UserStory } = require("../models/user-story");
-const Request = require("../models/request");
+const { Request } = require("../models/request");
 
 const { sanitizeText } = require("../middleware/input-sanitize");
 
@@ -12,7 +12,7 @@ const { WRONG_FORM_STRUCTURE, MISSING_STORY_FIELDS, WRONG_CAPTCHA, REQUEST_ACCEP
 const tokenPattern = /([A-Za-z0-9-_])/;
 
 const { ReasonPhrases, StatusCodes } = require("http-status-codes");
-const { OK, BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR } = StatusCodes;
+const { OK, BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND } = StatusCodes;
 
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_KEY);
@@ -27,6 +27,21 @@ const userStorySchema = Joi.object({
     role: Joi.string().required(),
     verb: Joi.string().required(),
     action: Joi.string().required()
+})
+
+router.get("/api/orders/uc/:ucParam", async (req, res) => {
+    let order;
+
+    try {
+        order = await Request.findOne({ ucParam: req.params.ucParam }).exec();
+    } catch(error) {
+        console.log(error);
+        return res.sendStatus(INTERNAL_SERVER_ERROR);
+    }
+
+    if(!order) return res.sendStatus(NOT_FOUND);
+
+    return res.status(OK).send({ useCases: order["actorsWithUseCases"] });
 })
 
 router.post("/api/stories", async (req, res) => {

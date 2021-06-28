@@ -11,7 +11,11 @@ const requestSchema = new Schema({
     diagrams: {
         class: String,
         useCase: String
-    }
+    },
+    ucParam: { type: String, required: false },
+    actorsWithUseCases: { type: Array, required: false }
 })
 
-module.exports = mongoose.model("Request", requestSchema);
+module.exports = {
+    Request: mongoose.model("Request", requestSchema)
+}
