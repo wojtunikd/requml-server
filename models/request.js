@@ -4,6 +4,7 @@ const { Schema } = mongoose;
 const { userStorySchema } = require("./user-story");
 
 const requestSchema = new Schema({
+    date: { type: Date, default: Date.now, required: true },
     email: { type: String, required: true },
     completed: { type: Boolean, required: true },
     userStories: [userStorySchema],

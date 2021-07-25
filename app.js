@@ -14,12 +14,19 @@ const routes = require("./routes/routes");
 
 app.use("/", routes);
 
-// scheduler to send to flask when idle and unprocessed request available in database
+const { initiateOrder } = require("./utils/scheduler/initiateOrder");
 
 const PORT = process.env.PORT || 3333;
 
 mongoose
     .connect(process.env.MONGODB_CONNECTION, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => app.listen(PORT))
-    .catch(error => console.log(error))
+    .then(() => {
+        app.listen(PORT);
+
+        setInterval(initiateOrder, 20000);
+    })
+    .catch(error => {
+        console.log(error);
+        process.exit(-1);
+    })
 
