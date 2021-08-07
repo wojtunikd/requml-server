@@ -21,38 +21,39 @@ exports.initiateOrder = async () => {
     const oldestOrder = orders[0];
 
     try {
-        analysed = await axios.post(`http://py.requml.co.uk/api/initiate/${oldestOrder._id}`, {}, {
+        analysed = await axios.post(`http://127.0.0.1:5000/api/initiate/${oldestOrder._id}`, {}, {
             headers: {
                 Authorization: `Bearer ${process.env.JWT_TOKEN}`
             }
         });
     } catch(error) {
-        console.log(error);
-        return { status: StatusCodes.INTERNAL_SERVER_ERROR }
-    }
+        if(!error.response) return { status: StatusCodes.INTERNAL_SERVER_ERROR }
 
-    if(analysed.status === 401) {
-        try {
-            login = await axios.post(`http://py.requml.co.uk/api/login`, {
-                email: process.env.PYEMAIL,
-                password: process.env.PYPASSWORD
-            });
-        } catch(error) {
-            console.log(error);
-            return { status: StatusCodes.INTERNAL_SERVER_ERROR }
-        }
-
-        if(login.status === 200) {
-            process.env.JWT_TOKEN = login.data.token;
-
+        if(error.response.status === 401) {
             try {
-                analysed = await axios.post(`http://py.requml.co.uk/api/initiate/${oldestOrder._id}`, {}, {
-                    headers: {
-                        Authorization: `Bearer ${login.data.token}`
-                    }
+                login = await axios.post(`http://127.0.0.1:5000/api/login`, {
+                    email: process.env.PYEMAIL,
+                    password: process.env.PYPASSWORD
                 });
             } catch(error) {
                 console.log(error);
+                return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+            }
+    
+            if(login.status === 200) {
+                process.env.JWT_TOKEN = login.data.token;
+    
+                try {
+                    analysed = await axios.post(`http://127.0.0.1:5000/api/initiate/${oldestOrder._id}`, {}, {
+                        headers: {
+                            Authorization: `Bearer ${login.data.token}`
+                        }
+                    });
+                } catch(error) {
+                    console.log(error);
+                    return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+                }
+            } else {
                 return { status: StatusCodes.INTERNAL_SERVER_ERROR }
             }
         } else {
