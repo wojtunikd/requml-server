@@ -21,7 +21,7 @@ exports.initiateOrder = async () => {
     const oldestOrder = orders[0];
 
     try {
-        analysed = await axios.post(`http://127.0.0.1:5000/api/initiate/${oldestOrder._id}`, {}, {
+        analysed = await axios.post(`${process.env.API_URL}/api/initiate/${oldestOrder._id}`, {}, {
             headers: {
                 Authorization: `Bearer ${process.env.JWT_TOKEN}`
             }
@@ -31,7 +31,7 @@ exports.initiateOrder = async () => {
 
         if(error.response.status === 401) {
             try {
-                login = await axios.post(`http://127.0.0.1:5000/api/login`, {
+                login = await axios.post(`${process.env.API_URL}/api/login`, {
                     email: process.env.PYEMAIL,
                     password: process.env.PYPASSWORD
                 });
@@ -44,7 +44,7 @@ exports.initiateOrder = async () => {
                 process.env.JWT_TOKEN = login.data.token;
     
                 try {
-                    analysed = await axios.post(`http://127.0.0.1:5000/api/initiate/${oldestOrder._id}`, {}, {
+                    analysed = await axios.post(`${process.env.API_URL}/api/initiate/${oldestOrder._id}`, {}, {
                         headers: {
                             Authorization: `Bearer ${login.data.token}`
                         }
