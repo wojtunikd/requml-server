@@ -48,7 +48,7 @@ exports.initiateOrder = async () => {
             try {
                 analysed = await axios.post(`http://py.requml.co.uk/api/initiate/${oldestOrder._id}`, {}, {
                     headers: {
-                        Authorization: `Bearer ${process.env.JWT_TOKEN}`
+                        Authorization: `Bearer ${login.data.token}`
                     }
                 });
             } catch(error) {
