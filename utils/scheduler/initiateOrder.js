@@ -7,7 +7,7 @@ const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 
 exports.initiateOrder = async () => {
-    let orders, analysed;
+    let orders, analysed, login;
 
     try {
         orders = await Request.find({ completed: false }).sort({ date: "asc" }).exec();
@@ -21,20 +21,51 @@ exports.initiateOrder = async () => {
     const oldestOrder = orders[0];
 
     try {
-        analysed = await axios.post(`http://localhost:5000/initiate/${oldestOrder._id}`);
+        analysed = await axios.post(`http://py.requml.co.uk/api/initiate/${oldestOrder._id}`, {}, {
+            headers: {
+                Authorization: `Bearer ${process.env.JWT_TOKEN}`
+            }
+        });
     } catch(error) {
         console.log(error);
         return { status: StatusCodes.INTERNAL_SERVER_ERROR }
     }
 
-    if(analysed.status !== 200) return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+    if(analysed.status === 401) {
+        try {
+            login = await axios.post(`http://py.requml.co.uk/api/login`, {
+                email: process.env.PYEMAIL,
+                password: process.env.PYPASSWORD
+            });
+        } catch(error) {
+            console.log(error);
+            return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+        }
 
-    console.log(analysed.data.ucParam)
+        if(login.status === 200) {
+            process.env.JWT_TOKEN = login.data.token;
+
+            try {
+                analysed = await axios.post(`http://py.requml.co.uk/api/initiate/${oldestOrder._id}`, {}, {
+                    headers: {
+                        Authorization: `Bearer ${process.env.JWT_TOKEN}`
+                    }
+                });
+            } catch(error) {
+                console.log(error);
+                return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+            }
+        } else {
+            return { status: StatusCodes.INTERNAL_SERVER_ERROR }
+        }
+    }
+
+    if(analysed.status !== 200) return { status: StatusCodes.INTERNAL_SERVER_ERROR }
 
     const ucParam = analysed.data.ucParam;
 
     if(!!ucParam) {
-        const emailMessage = `Dear user, <br /><br />ReqUML has completed the analysis of your user stories. Follow the URL below to preview and download your use case diagrams. <br /><br /><a href="http://localhost:3050/uc/${ucParam}"><b>http://localhost:3050/uc/${ucParam}</b></a><br /><br />Should you have any questions, do not hesitate to contact us at <b>contact@requml.co.uk</b><br /><br />Best wishes,<br />ReqUML Team`;
+        const emailMessage = `Dear user, <br /><br />ReqUML has completed the analysis of your user stories. Follow the URL below to preview and download your use case diagrams. <br /><br /><a href="https://ready.requml.co.uk/uc/${ucParam}"><b>https://ready.requml.co.uk/uc/${ucParam}</b></a><br /><br />Should you have any questions, do not hesitate to contact us at <b>contact@requml.co.uk</b><br /><br />Best wishes,<br />ReqUML Team`;
 
         const msg = {
             to: oldestOrder.email,
