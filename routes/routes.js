@@ -119,4 +119,8 @@ router.post("/api/stories", async (req, res) => {
     return res.status(OK).send(REQUEST_ACCEPTED);
 })
 
+router.use("/", (req, res) => res.status(NOT_FOUND).json({ 
+    message: "Invalid request. Please try again!" 
+}))
+
 module.exports = router;
