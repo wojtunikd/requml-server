@@ -29,21 +29,6 @@ const userStorySchema = Joi.object({
     action: Joi.string().required()
 })
 
-router.get("/api/orders/uc/:ucParam", async (req, res) => {
-    let order;
-
-    try {
-        order = await Request.findOne({ ucParam: req.params.ucParam }).exec();
-    } catch(error) {
-        console.log(error);
-        return res.sendStatus(INTERNAL_SERVER_ERROR);
-    }
-
-    if(!order) return res.sendStatus(NOT_FOUND);
-
-    return res.status(OK).send({ useCases: order["actorsWithUseCases"] });
-})
-
 router.post("/api/stories", async (req, res) => {
     let captcha, storiesReceived;
     let validForm = false;
@@ -117,6 +102,36 @@ router.post("/api/stories", async (req, res) => {
     }
 
     return res.status(OK).send(REQUEST_ACCEPTED);
+})
+
+router.get("/api/orders/uc/:ucParam", async (req, res) => {
+    let order;
+
+    try {
+        order = await Request.findOne({ ucParam: req.params.ucParam }).exec();
+    } catch(error) {
+        console.log(error);
+        return res.sendStatus(INTERNAL_SERVER_ERROR);
+    }
+
+    if(!order) return res.sendStatus(NOT_FOUND);
+
+    return res.status(OK).send({ useCases: order["actorsWithUseCases"] });
+})
+
+router.get("/api/orders/class/:classParam", async (req, res) => {
+    let order;
+
+    try {
+        order = await Request.findOne({ classParam: req.params.classParam }).exec();
+    } catch(error) {
+        console.log(error);
+        return res.sendStatus(INTERNAL_SERVER_ERROR);
+    }
+
+    if(!order) return res.sendStatus(NOT_FOUND);
+
+    return res.status(OK).send({ classes: order["classes"] });
 })
 
 router.use("/", (req, res) => res.status(NOT_FOUND).json({ 

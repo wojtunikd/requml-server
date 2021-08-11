@@ -14,7 +14,9 @@ const requestSchema = new Schema({
         useCase: String
     },
     ucParam: { type: String, required: false },
-    actorsWithUseCases: { type: Array, required: false }
+    actorsWithUseCases: { type: Array, required: false },
+    classParam: { type: String, required: false },
+    classes: { type: Array, required: false }
 })
 
 module.exports = {
