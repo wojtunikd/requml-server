@@ -19,8 +19,6 @@ exports.initiateOrder = async () => {
 
     const oldestOrder = orders[0];
 
-    console.log(oldestOrder._id)
-
     try {
         analysed = await axios.post(`${process.env.API_URL}/api/initiate/${oldestOrder._id}`, {}, {
             headers: {
