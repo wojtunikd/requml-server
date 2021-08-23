@@ -4,7 +4,7 @@ const axios = require("axios").default;
 const Joi = require("joi");
 
 const { UserStory } = require("../models/user-story");
-const { Request } = require("../models/request");
+const { Order } = require("../models/order");
 
 const { sanitizeText } = require("../middleware/input-sanitize");
 
@@ -17,7 +17,7 @@ const { OK, BAD_REQUEST, UNAUTHORIZED, INTERNAL_SERVER_ERROR, NOT_FOUND } = Stat
 const sgMail = require("@sendgrid/mail");
 sgMail.setApiKey(process.env.SENDGRID_KEY);
 
-const requestSchema = Joi.object({
+const orderSchema = Joi.object({
     email: Joi.string().email({ minDomainSegments: 2 }).required(),
     stories: Joi.string().required(),
     token: Joi.string().pattern(tokenPattern).required(),
@@ -36,7 +36,7 @@ router.post("/api/stories", async (req, res) => {
     const userStories = [];
 
     try {
-        validForm = await requestSchema.validateAsync(req.body);
+        validForm = await orderSchema.validateAsync(req.body);
     } catch(error) {
         console.log(error);
         return res.status(BAD_REQUEST).send(WRONG_FORM_STRUCTURE);
@@ -83,7 +83,7 @@ router.post("/api/stories", async (req, res) => {
         userStories.push(new UserStory({ role: role, verb: verb, action: action }));
     }
 
-    const request = new Request({
+    const order = new Order({
         email: req.body.email,
         completed: false,
         userStories: userStories,
@@ -95,7 +95,7 @@ router.post("/api/stories", async (req, res) => {
     });
 
     try {
-        await request.save();
+        await order.save();
     } catch(error) {
         console.log(error);
         return res.status(INTERNAL_SERVER_ERROR).send(REQUEST_FAILURE);
@@ -108,7 +108,7 @@ router.get("/api/orders/uc/:ucParam", async (req, res) => {
     let order;
 
     try {
-        order = await Request.findOne({ ucParam: req.params.ucParam }).exec();
+        order = await Order.findOne({ ucParam: req.params.ucParam }).exec();
     } catch(error) {
         console.log(error);
         return res.sendStatus(INTERNAL_SERVER_ERROR);
@@ -123,7 +123,7 @@ router.get("/api/orders/class/:classParam", async (req, res) => {
     let order;
 
     try {
-        order = await Request.findOne({ classParam: req.params.classParam }).exec();
+        order = await Order.findOne({ classParam: req.params.classParam }).exec();
     } catch(error) {
         console.log(error);
         return res.sendStatus(INTERNAL_SERVER_ERROR);

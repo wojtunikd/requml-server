@@ -9,11 +9,11 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(cors({
-    origin: ["https://requml.co.uk/", "https://requml-ready.herokuapp.com", "http://ready.requml.co.uk/"]
+    origin: ["https://requml.co.uk", "https://requml-ready.herokuapp.com", "http://ready.requml.co.uk"]
 }));
 
 app.options("/api/stories", cors({
-    origin: ["https://requml.co.uk/"]
+    origin: ["https://requml.co.uk"]
 }))
 
 const routes = require("./routes/routes");

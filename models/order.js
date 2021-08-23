@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const { userStorySchema } = require("./user-story");
 
-const requestSchema = new Schema({
+const orderSchema = new Schema({
     date: { type: Date, default: Date.now, required: true },
     email: { type: String, required: true },
     completed: { type: Boolean, required: true },
@@ -20,5 +20,5 @@ const requestSchema = new Schema({
 })
 
 module.exports = {
-    Request: mongoose.model("Request", requestSchema)
+    Order: mongoose.model("Order", orderSchema)
 }
