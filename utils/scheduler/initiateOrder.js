@@ -3,6 +3,8 @@ const axios = require("axios").default;
 const { Order } = require("../../models/order");
 const { ReasonPhrases, StatusCodes } = require("http-status-codes");
 
+const { sendEmailForCompletedAnalysis  } = require("../emails/mailingService");
+
 exports.initiateOrder = async () => {
     let orders, analysed, login;
 
@@ -16,6 +18,8 @@ exports.initiateOrder = async () => {
     if(!orders || orders.length < 1) return { status: StatusCodes.NOT_FOUND }
 
     const oldestOrder = orders[0];
+
+    console.log(oldestOrder._id)
 
     try {
         analysed = await axios.post(`${process.env.API_URL}/api/initiate/${oldestOrder._id}`, {}, {
