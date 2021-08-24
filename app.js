@@ -29,7 +29,7 @@ mongoose
     .then(() => {
         app.listen(PORT);
 
-        setInterval(initiateOrder, 20000);
+        setInterval(initiateOrder, 60000);
     })
     .catch(error => {
         console.log(error);
